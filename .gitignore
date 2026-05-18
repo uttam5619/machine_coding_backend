@@ -1,4 +1,2 @@
-pagination/node_modules
-pagination/.env
-pathAndQueryparams/node_modules
-pagination/.env
+**/node_modules/
+**/.env
