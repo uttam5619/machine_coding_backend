@@ -1,20 +1,51 @@
-
+import { User } from "./models.js"
 
 export function getUserDetails(req,res){
     const email = req.body.email 
 }
 
 
-export function createUser(){
+export async function createUser(req,res){
+    const {name,email, password}= req.body
+    if(!name || !email ||!password){
+        return res.status(400).json(
+            {
+                status:'error',
+                message:'all the firlds are mandetory'
+            }
+        )
+    }
 
+    const preExisitingUser = await User.findOne({email})
+    if(preExisitingUser){
+        return res.status(409).json({
+            status:'fail',
+            message:'email already in use'
+        })
+    }
+
+    const newuser = await User.create({name,email,password})
+    if(!newuser){
+        return res.status(500).json({
+            status:'error',
+            message:'failed to register the user'
+        })
+    }
+
+    const userObject = newuser.toObject()
+    delete userObject.password
+
+    res.status(201).json({
+        status:'sucess',
+        message:'user data fetched sucessfully',
+        userData:userObject
+    })
 }
 
 export function getUserListv1(req,res){
     // returing the data from the hardcoded list
     const page = req.params.page ||0
     const limit= req.params.limit || 20
-
-
     
 }
 
