@@ -140,6 +140,52 @@ export async function deleteCategory(req,res){
 }
 
 
+export async function searchCategory(req,res){
+
+    const page = req.query.page || 1
+    const limit = req.query.limit || 20
+    const offset = (page-1)*limit || 0
+
+    const { searchString } = req.body
+    if(!searchString){
+        return res.status(400).json(
+            {
+                status:'error',
+                message:'nothing to search'
+            }
+        )
+    }
+
+    const regex = new RegExp(searchString, "i");
+    const result = await Category.find({
+        $or: [
+                { categoryName: regex },
+                { categoryDescription: regex }
+        ]
+    }).skip(offset).limit(limit)
+
+    if(!result){
+        return res.status(200).json({
+            status:'success',
+            message:'nothing found'
+        })
+    }
+
+    res.status(200).json(
+        {
+            status:'success',
+            message:'result found',
+            page:page,
+            limit:limit,
+            data:result
+        }
+    )
+
+
+}
+
+
+
 
 
 export async function createProduct(req,res){
@@ -271,6 +317,54 @@ export async function deleteProduct(req,res){
             status:'success',
             message:'product updated successfully',
             data: productObject
+        }
+    )
+}
+
+
+export async function searchProduct(req,res){
+
+    const page = req.query.page || 1
+    const limit = req.query.limit
+
+    const offset = (page-1)*limit || 0
+
+    const { searchString } = req.body
+    if(!searchString){
+        return res.status(400).json(
+            {
+                status:'error',
+                message:"nothinng to search"
+            }
+        )
+    }
+
+    const regex = new RegExp(searchString, "i");
+    const result = await Product.find({
+        $or: [
+                { productName: regex },
+                { productShortDescription: regex },
+                { productDescription: regex }
+        ]
+    }).skip(offset).limit(limit)
+
+
+    if(result.length === 0){
+        return res.status(200).json(
+            {
+                status:'success',
+                message:'no such item found',
+            }
+        )
+    }
+
+    res.status(200).json(
+        {
+            status:'success',
+            message:'no such item found',
+            page:page,
+            limit:limit,
+            data:result
         }
     )
 }
